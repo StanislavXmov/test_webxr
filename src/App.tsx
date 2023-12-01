@@ -1,6 +1,19 @@
+import { Canvas } from "@react-three/fiber";
+import { Controllers, Hands, VRButton, XR } from "@react-three/xr";
+import { SceneEnvironment } from "./environment/SceneEnvironment";
+
 const App = () => {
   return (
-    <div>App</div>
+    <>
+      <VRButton />
+      <Canvas>
+        <XR>
+          <SceneEnvironment />
+          <Controllers />
+          <Hands />
+        </XR>
+      </Canvas>
+    </>
   );
 }
 
