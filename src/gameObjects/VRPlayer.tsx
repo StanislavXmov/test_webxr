@@ -35,6 +35,15 @@ export const VRPlayer = () => {
 
   useFrame(() => {
     position.current.set(0, 0, 0);
+    if (player.position.y < -5) {
+      const body = rigRef.current;
+      if (body) {
+        body.sleep();
+        body.setTranslation(new Vector3(0, 0, 0), true);
+        player.position.set(0, 0, 0);
+        return;
+      }
+    }
 
     const velocity = rigRef.current?.linvel();
     const pos = rigRef.current?.translation();

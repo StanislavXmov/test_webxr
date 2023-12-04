@@ -10,7 +10,7 @@ export const Scene = () => {
       <Physics timeStep="vary">
         <VRPlayer />
         <Ground />
-        <CharacterModel position={new Vector3(7.17, 2.9, 4.69)} />
+        {/* <CharacterModel position={new Vector3(7.17, 2.9, 4.69)} /> */}
       </Physics>
     </>
   )
