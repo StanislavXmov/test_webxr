@@ -7,4 +7,5 @@ export default defineConfig({
   // plugins: [react(), mkcert()],
   plugins: [react()],
   base: '',
+  assetsInclude: ['**/*.glb', '**/*.hdr']
 });

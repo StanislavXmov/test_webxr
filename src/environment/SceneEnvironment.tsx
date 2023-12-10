@@ -5,7 +5,7 @@ export const SceneEnvironment = () => {
   return (
     <>
       <Environment
-        files="/test.hdr"
+        files="./test.hdr"
         background
         blur={0.5}
       />
