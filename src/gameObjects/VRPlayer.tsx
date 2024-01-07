@@ -2,8 +2,31 @@ import { Collider, RayColliderToi } from '@dimforge/rapier3d-compat';
 import { useFrame } from '@react-three/fiber';
 import { CapsuleCollider, RapierRigidBody, RigidBody, useRapier } from '@react-three/rapier';
 import { useController, useXR } from '@react-three/xr';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Vector3 } from 'three';
+import { usePointer } from '../store/usePonter';
+// import { Text } from '@react-three/drei';
+
+const types: ['Cube', 'Triangle'] = ['Cube', 'Triangle'];
+const rotations: ['0', '90', '180', '270'] = ['0', '90', '180', '270'];
+
+// const keyHandler = (e: KeyboardEvent) => {
+//   if (e.code === 'KeyE') {
+//     const index = types.indexOf(currentType);
+//     if (index >= 0 && index !== types.length - 1) {
+//       setCurrentType(types[index + 1]);
+//     } else {
+//       setCurrentType(types[0]);
+//     }
+//   } else if (e.code === 'KeyR') {
+//     const index = rotations.indexOf(ghostRotation);
+//     if (index >= 0 && index !== rotations.length - 1) {
+//       setGhostRotation(rotations[index + 1]);
+//     } else {
+//       setGhostRotation(rotations[0]);
+//     }
+//   }
+// }
 
 export const VRPlayer = () => {
   const [text, setText ] = useState('Debug');
@@ -17,6 +40,12 @@ export const VRPlayer = () => {
   const controllerLeft = useController('left');
   const controllerRight = useController('right');
 
+  const currentType = usePointer(s => s.currentType);
+  const setCurrentType = usePointer(s => s.setCurrentType);
+
+  const ghostRotation = usePointer(s => s.ghostRotation);
+  const setGhostRotation = usePointer(s => s.setGhostRotation);
+
   const deadzone = 0.05;
   const forward = useRef(new Vector3());
   const horizontal = useRef(new Vector3());
@@ -26,6 +55,8 @@ export const VRPlayer = () => {
 
   const isCollision = useRef(false);
   let jump = false;
+  let trigerTypeDate = new Date();
+  let trigerRotationsDate = new Date();
 
   const rayOriginOffest = { x: 0, y: -size, z: 0 };
   const rayOrigin = useMemo(() => new Vector3(), []);
@@ -39,8 +70,8 @@ export const VRPlayer = () => {
       const body = rigRef.current;
       if (body) {
         body.sleep();
-        body.setTranslation(new Vector3(0, 0, 0), true);
-        player.position.set(0, 0, 0);
+        body.setTranslation(new Vector3(0, 1, 0), true);
+        player.position.set(0, 1, 0);
         return;
       }
     }
@@ -102,9 +133,40 @@ export const VRPlayer = () => {
 				(Math.abs(XStickRight) > deadzone ? XStickRight : 0) * 0.05;
     }
 
+    // B = 5
+    // A = 4
     const buttonA = controllerRight?.inputSource?.gamepad?.buttons[4]
     if (buttonA && (buttonA.pressed || buttonA.value > 0)) {
       jump = true;
+    }
+
+    const buttonX = controllerLeft?.inputSource?.gamepad?.buttons[4]
+    if (buttonX && (buttonX.pressed || buttonX.value > 0)) {
+      const trigerDate = new Date();
+      if (trigerDate.getTime() - trigerTypeDate.getTime() > 2000) {
+        trigerTypeDate = trigerDate
+        const index = types.indexOf(currentType);
+        if (index >= 0 && index !== types.length - 1) {
+          setCurrentType(types[index + 1]);
+        } else {
+          setCurrentType(types[0]);
+        }
+      }
+    }
+
+    // right rotate
+    const buttonB = controllerRight?.inputSource?.gamepad?.buttons[5]
+    if (buttonB && (buttonB.pressed ||  buttonB.value > 0)) {
+      const trigerDate = new Date();
+      if (trigerDate.getTime() - trigerRotationsDate.getTime() > 2000) {
+        trigerRotationsDate = trigerDate
+        const index = rotations.indexOf(ghostRotation);
+        if (index >= 0 && index !== rotations.length - 1) {
+          setGhostRotation(rotations[index + 1]);
+        } else {
+          setGhostRotation(rotations[0]);
+        }
+      }
     }
 
     if (jump) {
@@ -123,7 +185,7 @@ export const VRPlayer = () => {
           ((collider) => !collider.isSensor())
         );
         if (rayHit && rayHit.toi < 1) {
-          rigRef.current.setLinvel({ x: 0, y: 45, z: 0 }, true);
+          rigRef.current.setLinvel({ x: 0, y: 60, z: 0 }, true);
         }
       }
     }
@@ -141,11 +203,14 @@ export const VRPlayer = () => {
       type="dynamic"
     >
       {/* Debug */}
-      {/* <Text position={[0, 1, -2]} color={'#000000'} anchorX="center"
-        anchorY="middle">
-        {text}
-      </Text> */}
+      
       <CapsuleCollider args={[size, size]} mass={100} />
     </RigidBody>
   )
 };
+
+{/* Debug */}
+{/* <Text position={[0, 1, -8]} color={'#000000'} anchorX="center"
+  anchorY="middle">
+  {text}
+</Text> */}
