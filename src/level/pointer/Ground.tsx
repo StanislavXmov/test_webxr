@@ -3,6 +3,8 @@ import { usePointer } from "../../store/usePonter";
 import { Interactive, XRInteractionEvent } from "@react-three/xr";
 import { Vector3 } from "three";
 import { setGhostRotation } from "./GhostBlock";
+import { useCallback } from "react";
+import useThrottledFunction from "../../hooks/useThrottle";
 
 const Ground = () => {
   const setPointer = usePointer(s => s.setPointers);
@@ -11,7 +13,7 @@ const Ground = () => {
   const setPosition = usePointer(s => s.setGhostPosition);
   const ghostRotation = usePointer(s => s.ghostRotation);
 
-  const onHover = (e: XRInteractionEvent) => {
+  const onHover = useCallback((e: XRInteractionEvent) => {
     setHover(true);
 
     if (e.intersections.length > 0) {
@@ -29,7 +31,12 @@ const Ground = () => {
       
       setPosition(position);
     }
-  }
+  }, []);
+
+  const { throttledFn: throttledHover } = useThrottledFunction({
+    callbackFn: onHover as <T>(args?: T | undefined) => any,
+    throttleMs: 100
+  });
 
   const onBlur = () => {
     setHover(false);
@@ -60,7 +67,8 @@ const Ground = () => {
         <Interactive 
           onSelect={onSelect} 
           // onHover={onHover}
-          onMove={onHover}
+          // onMove={onHover}
+          onMove={throttledHover}
           onBlur={onBlur}
         >
           <mesh rotation={[-Math.PI / 2, 0, 0]}>

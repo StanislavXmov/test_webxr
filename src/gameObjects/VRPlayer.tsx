@@ -143,7 +143,7 @@ export const VRPlayer = () => {
     const buttonX = controllerLeft?.inputSource?.gamepad?.buttons[4]
     if (buttonX && (buttonX.pressed || buttonX.value > 0)) {
       const trigerDate = new Date();
-      if (trigerDate.getTime() - trigerTypeDate.getTime() > 2000) {
+      if (trigerDate.getTime() - trigerTypeDate.getTime() > 1000) {
         trigerTypeDate = trigerDate
         const index = types.indexOf(currentType);
         if (index >= 0 && index !== types.length - 1) {
@@ -158,7 +158,7 @@ export const VRPlayer = () => {
     const buttonB = controllerRight?.inputSource?.gamepad?.buttons[5]
     if (buttonB && (buttonB.pressed ||  buttonB.value > 0)) {
       const trigerDate = new Date();
-      if (trigerDate.getTime() - trigerRotationsDate.getTime() > 2000) {
+      if (trigerDate.getTime() - trigerRotationsDate.getTime() > 1000) {
         trigerRotationsDate = trigerDate
         const index = rotations.indexOf(ghostRotation);
         if (index >= 0 && index !== rotations.length - 1) {

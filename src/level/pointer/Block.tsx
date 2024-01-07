@@ -5,6 +5,8 @@ import { Euler, MeshStandardMaterial, Vector3 } from "three";
 import { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
 import { usePointer } from "../../store/usePonter";
 import { setGhostRotation } from "./GhostBlock";
+import { useCallback } from "react";
+import useThrottledFunction from "../../hooks/useThrottle";
 
 type BlockProps = {
   position: Vector3;
@@ -36,7 +38,7 @@ export const Block = ({ position, rotation, type }: BlockProps) => {
   }
   // const {nodes, materials} = useGLTF('./cube.glb') as SceneModel;
 
-  const onHover = (e: XRInteractionEvent) => {
+  const onHover = useCallback((e: XRInteractionEvent) => {
     setHover(true);
 
     if (e.intersections.length > 0) {
@@ -49,7 +51,12 @@ export const Block = ({ position, rotation, type }: BlockProps) => {
       position.divideScalar(2.5).floor().multiplyScalar(2.5).addScalar(1.25);
       setPosition(position);
     }
-  }
+  }, []);
+
+  const { throttledFn: throttledHover } = useThrottledFunction({
+    callbackFn: onHover as <T>(args?: T | undefined) => any,
+    throttleMs: 100
+  });
 
   const onBlur = () => {
     setHover(false);
@@ -83,7 +90,8 @@ export const Block = ({ position, rotation, type }: BlockProps) => {
           <Interactive 
             onSelect={onSelect} 
             // onHover={onHover} 
-            onMove={onHover} 
+            // onMove={onHover} 
+            onMove={throttledHover} 
             onBlur={onBlur}>
             <Box 
               args={[2.5, 2.5, 2.5]}
